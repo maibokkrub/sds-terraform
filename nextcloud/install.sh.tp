@@ -1,0 +1,78 @@
+#!/bin/bash
+
+sudo apt update -y
+sudo apt install -y apache2 libapache2-mod-php7.4 
+
+sudo apt install -y php7.4-gd php7.4-mysql php7.4-curl php7.4-mbstring php7.4-intl
+sudo apt install -y php7.4-gmp php7.4-bcmath php-imagick php7.4-xml php7.4-zip
+sudo apt install -y unzip
+echo "Downloading Nextcloud..." > /var/www/html/index.html
+exec &> /var/www/html/index.html
+
+#Downloading the Server File
+cd /tmp
+wget https://download.nextcloud.com/server/releases/nextcloud-22.2.0.zip
+
+#install nextcloud
+echo "Installing Nextcloud..." > /var/www/html/index.html
+sudo unzip nextcloud-22.2.0.zip
+sudo mv nextcloud/* /var/www/html/
+sudo chmod -R 777 /var/www
+sudo chown -R www-data:www-data /var/www
+
+a2enmod rewrite
+a2enmod headers
+a2enmod dir
+a2enmod mime
+sudo service apache2 restart
+
+cd /var/www/html
+echo "Configuring Nextcloud..." > /var/www/html/index.html
+
+cat <<EOF > /var/www/html/config/s3.config.php
+<?php
+\$CONFIG = array(
+  'objectstore' => [
+    'class' => '\\OC\\Files\\ObjectStore\\S3',
+    'arguments' => [
+      'bucket'     => '${BUCKET_NAME}',
+      'autocreate' => false,
+      'port'       => 443,
+      'key'        => '${S3_KEY}',
+      'secret'     => '${S3_SECRET}',
+      'region'     => '${REGION}',
+      'use_ssl'    => true,
+      'use_path_style'=>true,
+    ],
+  ],
+);
+EOF
+
+
+sudo -u www-data php occ maintenance:install \
+    --database="mysql" \
+    --database-host="${dbHost}" \
+    --database-name="${dbName}" \
+    --database-user="${dbUser}"  \
+    --database-pass="${dbPass}"  \
+    --admin-user="${nxtUser}" \
+    --admin-pass="${nxtPass}" 
+
+sudo -u www-data php occ config:system:set trusted_domains 1 --value=${PUBLIC_IP}
+
+cat<< EOF > /install.sh
+#!/bin/bash
+sudo -u www-data php occ maintenance:install \
+    --database="mysql" \
+    --database-host="${dbHost}" \
+    --database-name="${dbName}" \
+    --database-user="${dbUser}"  \
+    --database-pass="${dbPass}"  \
+    --admin-user="${nxtUser}" \
+    --admin-pass="${nxtPass}" 
+
+sudo -u www-data php occ config:system:set trusted_domains 1 --value=${PUBLIC_IP}
+EOF
+
+sudo chown -R www-data:www-data /var/www
+sudo service apache2 restart

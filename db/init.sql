@@ -1,0 +1,4 @@
+CREATE USER '{$dbUser}'@'%' IDENTIFIED BY '{$dbName}';
+CREATE DATABASE IF NOT EXISTS '${dbName}' CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+GRANT ALL PRIVILEGES ON '${dbName}'.* TO '{$dbUser}'@'%';
+FLUSH PRIVILEGES;

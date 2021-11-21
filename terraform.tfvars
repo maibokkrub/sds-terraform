@@ -1,0 +1,25 @@
+# region            = "us-east-2"
+# availability_zone = "us-east-2b"
+# vpc_cidr          = "10.0.0.0/16"
+# ami               = "ami-0629230e074c580f2"
+# instance_type     = "t2.micro"
+# database_name     = "nextcloud"
+# database_user     = "username"
+# database_pass     = "password"
+# admin_user        = "admin"
+# admin_pass        = "password"
+
+region            = "ap-southeast-1"
+availability_zone = "ap-southeast-1a"
+vpc_cidr          = "10.0.0.0/16"
+ami               = "ami-0d058fe428540cd89"
+instance_type     = "t2.micro"
+database_name     = "nextcloud"
+database_user     = "username"
+database_pass     = "password"
+admin_user        = "admin"
+admin_pass        = "password"
+
+bucket_name       = "maibokkrub-nextcloud-tester2"
+# aws ec2 describe-availability-zones --region region-name
+
